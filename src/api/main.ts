@@ -24,6 +24,9 @@ export class Application{
         this.server = new Hapi.Server(config);
     
         this.server.events.on("response", function(request) {
+            if(["/register", "/login"].includes(request.path) && request.method !== "options") {
+                (request.payload as any).data.hash = "------------";
+            }
             console.log(`${request.method}:[${request.path}]:${JSON.stringify(request.payload)}`);
         });
 
@@ -56,12 +59,12 @@ export class Application{
         this.registerEndpoint({
             method: "POST",
             path: "/login",
-            handler: async (request: any, h) => {
+            handler: async (request, h) => {
                 let { payload } = request as any;
-                let re = await burgerKrigApi.api.login.login({...payload.data});
+                let res = await burgerKrigApi.api.login.login({...payload.data})
                 return {
                     data: {
-                        ...re
+                        ...res
                     },
                     status: 200,
                     message: "OK"

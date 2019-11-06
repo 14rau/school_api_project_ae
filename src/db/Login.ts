@@ -3,8 +3,8 @@ import { Database } from "./database";
 import { IUser, User } from "../entity/User";
 import { ILogin, Login } from "../entity/Login";
 import * as md5 from "md5";
-import { Permission } from "../entity/Permission";
 import { getConnection } from "typeorm";
+const bcrypt = require('bcrypt');
 
 export class LoginApi extends Database implements BaseApi<ILogin> {
 
@@ -29,8 +29,9 @@ export class LoginApi extends Database implements BaseApi<ILogin> {
         });
 
         if(!user) return {session: "", error: "Username or Password invalid"};
-
-        if(user.login.hash === data.hash) {
+        
+        let res = await bcrypt.compare(data.hash, user.login.hash)
+        if(res) {
             let login = await getConnection().getRepository(Login).findOne({
                 where: {
                     id: user.login.id
@@ -42,8 +43,9 @@ export class LoginApi extends Database implements BaseApi<ILogin> {
             login.ttl = 1000 * 60 * 60 * 24; //1day
             getConnection().manager.save(login);
             return {session: login.session, userId: login.id, userName: user.loginName, permissionName: user.permission.permissionName, avatarId: user.avatarId};
+        } else {
+            return {session: "", error: "Username or Password invalid"};
         }
-        return {session: "", error: "Username or Password invalid"};
     }
 
     
@@ -61,11 +63,16 @@ export class LoginApi extends Database implements BaseApi<ILogin> {
 
         let session;
         if((user.login.session === data.session) && (user.login.ttl === -1 || (new Date(user.login.sessionCreated).getTime() - new Date().getTime()) <= user.login.ttl)) {
-            session = md5(Math.random().toString(36).substr(7))
-            user.login.session = session;
-            user.login.sessionCreated = new Date();
-            user.login.ttl = 1000*60*60*24; // 1 day
-            getConnection().manager.save(user.login);
+            if(user.login.ttl - ((new Date(user.login.sessionCreated).getTime() - new Date().getTime())) <= user.login.ttl / 2) {
+                session = md5(Math.random().toString(36).substr(7))
+                user.login.session = session;
+                user.login.sessionCreated = new Date();
+                user.login.ttl = 1000*60*60*24; // 1 day
+                getConnection().manager.save(user.login);
+            } else {
+                return { session: data.session, userId: data.id };   
+            }
+            
         } else {
             user.login.session = null;
             user.login.ttl = null;

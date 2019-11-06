@@ -6,6 +6,7 @@ import { IApiContext } from "../api/api";
 import { Validate } from "../ValidationDecorator";
 import { getConnection } from "typeorm";
 import { Permission } from "../entity/Permission";
+const bcrypt = require('bcrypt');
 
 export class UserApi extends Database implements BaseApi<IUser> {
 
@@ -13,7 +14,7 @@ export class UserApi extends Database implements BaseApi<IUser> {
         throw new Error("Method not implemented.");
     }
 
-    public async register(data: Partial<IUser & ILogin> ) {
+    public async register(data: Partial<IUser & ILogin>) {
         let us = await getConnection().manager.getRepository(User).findOne({
             where: {
                 loginName: data.loginName
@@ -25,10 +26,11 @@ export class UserApi extends Database implements BaseApi<IUser> {
         user.loginName = data.loginName;
 
         let login = new Login();
-        login.hash = data.hash;
+        let salt = await bcrypt.genSalt(10);
+        let hash = await bcrypt.hash(data.hash, salt);
+        login.hash = hash;
         user.login = login;
         user.active = false;
-
         let permission = await getConnection().manager.getRepository(Permission).findOne({where: {id: 20}})
         if(!permission) { // if this permission does not exist, create it
             permission = new Permission();
