@@ -27,6 +27,7 @@ export class Application{
             if(["/register", "/login"].includes(request.path) && request.method !== "options") {
                 (request.payload as any).data.hash = "------------";
             }
+            if(request.method !== "options") (request.payload as any).session = "SESSION";
             console.log(`${request.method}:[${request.path}]:${JSON.stringify(request.payload)}`);
         });
 

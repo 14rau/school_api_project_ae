@@ -3,7 +3,7 @@ import { Database } from "./database";
 import { IUser, User } from "../entity/User";
 import { ILogin, Login } from "../entity/Login";
 import { IApiContext } from "../api/api";
-import { Validate } from "../ValidationDecorator";
+import { Perm } from "../ValidationDecorator";
 import { getConnection } from "typeorm";
 import { Permission } from "../entity/Permission";
 const bcrypt = require('bcrypt');
@@ -40,13 +40,13 @@ export class UserApi extends Database implements BaseApi<IUser> {
         }
 
         user.permission = permission;
-        getConnection().manager.save(login);
         getConnection().manager.save(user);
+        getConnection().manager.save(login);
         return true;
         
     }
 
-    @Validate(20)
+    @Perm(20)
     public async get(ctx: IApiContext, userId: number) {
         let res = await getConnection().manager.getRepository(User).findByIds([userId]);
         delete res[0].login;

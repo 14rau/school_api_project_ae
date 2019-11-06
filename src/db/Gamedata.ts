@@ -1,13 +1,23 @@
 import { BaseApi } from "./Utils";
 import { IUser, User } from "../entity/User";
-import { ILogin, Login } from "../entity/Login";
 import { IApiContext } from "../api/api";
-import { Validate } from "../ValidationDecorator";
+import { Perm } from "../ValidationDecorator";
 import { Gamedata, IGamedata } from "../entity/Gamedata";
 import { Database } from "./database";
 import { getConnection } from "typeorm";
 
 export class GamedataApi extends Database implements BaseApi<IUser> {
+
+    @Perm(10)
+    public async adminFunction(ctx: IApiContext, data) {
+        return {test: "Run Admin function"}
+    }
+
+    @Perm(0)
+    public async rootFunction(ctx: IApiContext, data) {
+        return {test: "Run root function"}
+    }
+
     public async addNew(ctx: IApiContext, data: Partial<IGamedata>) {
         let gamedata = new Gamedata();
         gamedata.actions = data.actions;
@@ -19,6 +29,7 @@ export class GamedataApi extends Database implements BaseApi<IUser> {
         getConnection().manager.save(gamedata);
     }
 
+    @Perm(200)
     public test(data) {
         return {test: "Test successfull"};
     }

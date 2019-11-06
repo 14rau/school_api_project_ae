@@ -1,8 +1,11 @@
 import { IApiContext } from "./api/api";
+import { getConnection } from "typeorm";
+import { Permission } from "./entity/Permission";
+import { User } from "./entity/User";
 
 // api object must be defined
 
-export function Validate(permissionLevel: number): any {
+export function Perm(permissionLevel: number): any {
     return function (target, key: string, descriptor: PropertyDescriptor) {
         // save a reference to the original method this way we keep the values currently in the
         // descriptor and don't overwrite what another decorator might have done to the descriptor.
@@ -21,9 +24,15 @@ export function Validate(permissionLevel: number): any {
 
             // args 0 is api context
             let context: IApiContext = args[0];
-            let permission = 0;//await burgerKrigApi.api.permission.getPermission(context, context.user.id);
-            if(permissionLevel >= permission) {
-                await originalMethod.apply(this, args)
+            // let permission = await burgerKrigApi.api.permission.getPermission(context, context.user.id);
+            let user = await getConnection().getRepository(User).findOne({
+                relations: ["permission"],
+                where: {
+                    id: context.user.id
+                }
+            });
+            if(permissionLevel >= user.permission.id) {
+                return originalMethod.apply(this, args)
             } else {
                 return {code: 401, message: `Missing permissions for function ${key}`}
             }

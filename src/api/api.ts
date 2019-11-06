@@ -24,7 +24,9 @@ interface IApi {
     }
     gamedata: {
         addNew: Function;
-        test: Function;
+        user: Function;
+        admin: Function;
+        root: Function;
     }
 }
 
@@ -56,7 +58,9 @@ export class BurgerKrigApi {
             },
             gamedata: {
                 addNew: this.gamedataApi.addNew,
-                test: this.gamedataApi.test
+                user: this.gamedataApi.test,
+                admin: this.gamedataApi.adminFunction,
+                root: this.gamedataApi.rootFunction
             }
         }
     }
