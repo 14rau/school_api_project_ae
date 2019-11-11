@@ -25,6 +25,7 @@ export class Application{
     
         this.server.events.on("response", function(request) {
             if(["/register", "/login"].includes(request.path) && request.method !== "options") {
+                // remove some specific data from register and login in the log, so we won't show anything
                 (request.payload as any).data.hash = "------------";
             }
             if(request.method !== "options") (request.payload as any).session = "SESSION";
@@ -111,18 +112,23 @@ export class Application{
             path: "/rpc",
             handler: async (request: any, h) => {
                 let payload: Req = request.payload;
-                let user = await burgerKrigApi.api.user.validate({id: payload.userId, session: payload.session})
-
-                if(user.error) {
-                    throw Boom.forbidden(user.error);
-                }
+                console.time(payload.session)
                 if(_.get(burgerKrigApi.api, payload.path)) {
+                    let user = await burgerKrigApi.api.user.validate(null, {id: payload.userId, session: payload.session})
                     let temp = await _.get(burgerKrigApi.api, payload.path)({session: payload.session, user}, payload.data);
-                    let newSession = await burgerKrigApi.api.login.updateSession({
+                    if(temp.login) {
+                        delete temp.login;
+                    }
+                    if(user.error) {
+                        return {
+                            data: temp
+                        }
+                    }
+                    let newSession = await burgerKrigApi.api.login.updateSession(null, {
                         id: payload.userId,
                         session: payload.session,
                     });
-
+                    console.timeEnd(payload.session);
                     return {
                         permission: newSession.permissionId,
                         userId: newSession.userId,
