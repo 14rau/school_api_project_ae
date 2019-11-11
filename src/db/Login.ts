@@ -99,20 +99,22 @@ export class LoginApi extends Database implements BaseApi<ILogin> {
             login.sessionCreated = new Date();
             login.ttl = ttl; //1day
             getConnection().manager.save(login);
-            return {session: login.session, userId: login.id, userName: user.loginName, permissionName: user.permission.permissionName, avatarId: user.avatarId, permLevel: user.permission.id};
+            return {session: login.session, userId: login.id, userName: user.loginName, avatarId: user.avatarId, permissionId: user.permission.id};
         } else {
             return {session: "", error: "Username or Password invalid"};
         }
     }
 
     
-    public async updateSession(data: Partial<IUser & ILogin>) {
+    public async updateSession(ctx, data: Partial<IUser & ILogin>) {
         let user = await getConnection().getRepository(User).findOne({
             where: {
                 id: data.id
             },
             relations: ["login", "permission"],
         });
+
+        if(!user) return { session: "" };
 
         if(user.login.ttl === -1) {
             return { session: data.session, userId: data.id, permissionId: user.permission.id };        
@@ -127,7 +129,7 @@ export class LoginApi extends Database implements BaseApi<ILogin> {
                 user.login.ttl = 1000*60*60*24; // 1 day
                 getConnection().manager.save(user.login);
             } else {
-                return { session: data.session, userId: data.id };   
+                return { session: data.session, userId: data.id, permissionId: user.permission.id };   
             }
             
         } else {
@@ -138,7 +140,7 @@ export class LoginApi extends Database implements BaseApi<ILogin> {
             
         }
 
-        return { session: session, userId: data.id };
+        return { session: session, userId: data.id, permissionId: user.permission.id };
     }
 
 }
