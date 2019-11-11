@@ -5,7 +5,13 @@ import { User } from "./entity/User";
 
 // api object must be defined
 
-export function Perm(permissionLevel: number): any {
+
+/**
+ * 
+ * Either provide an function or an required permission level
+ * Function will get an permission id as paramater. root overwrites the function
+ */
+export function Perm(permissionLevel: number | Function): any {
     return function (target, key: string, descriptor: PropertyDescriptor) {
         // save a reference to the original method this way we keep the values currently in the
         // descriptor and don't overwrite what another decorator might have done to the descriptor.
@@ -31,11 +37,18 @@ export function Perm(permissionLevel: number): any {
                     id: context.user.id
                 }
             });
-            if(permissionLevel >= user.permission.id) {
-                return originalMethod.apply(this, args)
+            if (typeof permissionLevel === "number") {
+                if(permissionLevel >= user.permission.id) {
+                    return originalMethod.apply(this, args)
+                }
+                return {code: 401, message: `Missing permissions for function ${key}`};
             } else {
-                return {code: 401, message: `Missing permissions for function ${key}`}
+                if(permissionLevel(user.permission.id) || (0 === user.permission.id)) {
+                    return originalMethod.apply(this, args)
+                }
+                return {code: 401, message: `Missing permissions for function ${key}`};
             }
+            
             // note usage of originalMethod here
             
             

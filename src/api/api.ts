@@ -10,32 +10,13 @@ export interface IApiContext{
     session: string;
 }
 
-interface IApi {
-    login: {
-        updateSession: Function;
-        login: Function;
-    },
-    user: {
-        register: Function;
-        validate: Function;
-    },
-    permission: {
-        getPermission: Function;
-    }
-    gamedata: {
-        addNew: Function;
-        user: Function;
-        admin: Function;
-        root: Function;
-    }
-}
 
 export class BurgerKrigApi {
     private loginApi: LoginApi;
     private userApi: UserApi;
     private permissionApi: PermissionApi;
     private gamedataApi: GamedataApi;
-    public api: IApi;
+    public api;
 
     public async init() {
 
@@ -47,11 +28,16 @@ export class BurgerKrigApi {
         this.api = {
             login: {
                 updateSession: this.loginApi.updateSession,
+                logout: this.loginApi.logout,
+                registerApiKey: this.loginApi.registerApiKey,
                 login: this.loginApi.login
             },
             user: {
+                validate: this.userApi.validate,
+                getById: this.userApi.getById,
+                get: this.userApi.get,
+                unlock: this.userApi.unlock,
                 register: this.userApi.register,
-                validate: this.userApi.validate
             },
             permission: {
                 getPermission: this.permissionApi.getPermission

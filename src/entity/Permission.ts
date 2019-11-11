@@ -11,7 +11,7 @@ export class Permission {
     @Column()
     permissionName: string;
 
-    @OneToMany(type => User, user => user.permission)
+    @OneToMany(type => User, user => user.permission, {cascade: true},)
     users: User[];
 }
 

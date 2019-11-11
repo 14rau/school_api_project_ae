@@ -26,7 +26,7 @@ export class User {
     @JoinColumn()
     permission: Permission;
 
-    @OneToMany(type => Gamedata, gamedata => gamedata.user)
+    @OneToMany(type => Gamedata, gamedata => gamedata.user, {cascade: true,})
     gamedata: Gamedata[];
 
 }

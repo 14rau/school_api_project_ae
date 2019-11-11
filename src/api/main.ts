@@ -75,7 +75,7 @@ export class Application{
 
         this.registerEndpoint({
             method: "GET",
-            path: "/help",
+            path: "/rpc",
             handler: (request, h) => {
                 let arr = [];
                 for(let key in burgerKrigApi.api) {
@@ -91,13 +91,18 @@ export class Application{
             method: "POST",
             path: "/register",
             handler: async (request: any, h) => {
-                let payload: Req = request.payload as any;
-                let re = await burgerKrigApi.api.user.register({...payload.data});
-                return {
-                    status: 200,
-                    message: "OK",
-                    data: re
-                };
+                try {
+                    let payload: Req = request.payload as any;
+                    let re = await burgerKrigApi.api.user.register({...payload.data});
+                    return {
+                        status: 200,
+                        message: "OK",
+                        data: re
+                    };
+                } catch(err) {
+                    console.log(err);
+                    throw Boom.internal();
+                }
             }
         });
 
@@ -119,6 +124,7 @@ export class Application{
                     });
 
                     return {
+                        permission: newSession.permissionId,
                         userId: newSession.userId,
                         session: newSession.session,
                         data: temp,
