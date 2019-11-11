@@ -69,7 +69,7 @@ export class UserApi extends Database implements BaseApi<IUser> {
                 login: loginId
             })
             .execute();
-        let userId = i.identifiers[0].id; // get userId
+        // let userId = i.identifiers[0].id; // get userId
 
         return true;
         
@@ -89,12 +89,13 @@ export class UserApi extends Database implements BaseApi<IUser> {
 
 
     // id is userid and session is session string
-    public async validate(data: {id: number, session: string}) {
+    public async validate(ctx, data: {id: number, session: string}) {
         let {id, session} = data;
-        let user = await getConnection().manager.getRepository(User).findOne({id: id}, {relations: ["login"]});
-        if(!user) return {error: "Invalid session"}; // tell user the session is not valid instead of the user does not exist
-        if(!user.active) return {error: "Your account must be marked as active!"}; // only when user is set to active
-        return session === user.login.session ? user : {error: "Invalid session"};
+        let user = await getConnection().manager.getRepository(User).findOne({id: id}, {relations: ["login", "permission"]});
+        if(!user) return {error: "Invalid session", code: 0}; // tell user the session is not valid instead of the user does not exist
+        if(!user.active) return {error: "Your account must be marked as active!", code: 1}; // only when user is set to active
+
+        return session === user.login.session ? user : {error: "Invalid session", code: 0};
         
     }
 
