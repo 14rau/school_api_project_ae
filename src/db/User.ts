@@ -39,7 +39,7 @@ export class UserApi extends Database implements BaseApi<IUser> {
 
         login.hash = hash;
         user.login = login;
-        user.active = false;
+        user.active = true;
         let permission = await getConnection().manager.getRepository(Permission).findOne({where: {id: 20}})
         if(!permission) { // if this permission does not exist, create it
             permission = new Permission();
