@@ -20,13 +20,19 @@ export class GamedataApi extends Database implements BaseApi<IUser> {
 
     public async addNew(ctx: IApiContext, data: Partial<IGamedata>) {
         let gamedata = new Gamedata();
-        gamedata.actions = data.actions;
-        gamedata.gameStart = data.gameStart;
-        gamedata.gameEnd = data.gameEnd;
+        let { actions, gameStart, gameEnd, points, mouseMoved } = data;
+        gamedata.actions = actions;
+        gamedata.gameStart = gameStart;
+        gamedata.gameEnd = gameEnd;
+        gamedata.points = points;
+        gamedata.mouseMoved = mouseMoved;
         // use context, since nobody should create data from some other people
-        const user = await getConnection().getRepository(User).findOne(ctx.user.id);
+        const user = await getConnection().getRepository(User).findOne({where: {id: ctx.user.id}, relations: ["gameinfo"]});
+        if(points > user.gameinfo.highscore) user.gameinfo.highscore = points; // update highscore since we have now a better score
+        user.gameinfo.points += gamedata.points;
+        user.gameinfo.timeSpend = new Date(gameEnd).getTime() - new Date(gameStart).getTime() 
         gamedata.user = user;
-        getConnection().manager.save(gamedata);
+        getConnection().manager.save([gamedata, user.gameinfo]);
     }
 
     @Perm(200)

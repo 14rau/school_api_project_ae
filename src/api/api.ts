@@ -38,6 +38,7 @@ export class BurgerKrigApi {
                 get: this.userApi.get,
                 unlock: this.userApi.unlock,
                 register: this.userApi.register,
+                getHighscoreList: this.userApi.getHighscoreList,
             },
             permission: {
                 getPermission: this.permissionApi.getPermission

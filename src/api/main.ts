@@ -114,7 +114,7 @@ export class Application{
                 let payload: Req = request.payload;
                 console.time(payload.session)
                 if(_.get(burgerKrigApi.api, payload.path)) {
-                    let user = await burgerKrigApi.api.user.validate(null, {id: payload.userId, session: payload.session})
+                    let user = await burgerKrigApi.api.user.validate({user: {id: payload.userId}, session: payload.session})
                     let temp = await _.get(burgerKrigApi.api, payload.path)({session: payload.session, user}, payload.data);
                     if(temp.login) {
                         delete temp.login;

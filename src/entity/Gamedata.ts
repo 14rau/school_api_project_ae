@@ -16,6 +16,15 @@ export class Gamedata {
     @Column()
     gameStart: string;
 
+    @Column()
+    points: number;
+
+    @Column()
+    shots: number;
+
+    @Column()
+    mouseMoved: number;
+
     @ManyToOne(type => User, user => user.gamedata)
     user: User;
 
@@ -26,5 +35,8 @@ export interface IGamedata {
     actions: string;
     gameStart: string;
     gameEnd: string;
+    points: number;
+    shots: number;
+    mouseMoved: number;
     user: User;
 }

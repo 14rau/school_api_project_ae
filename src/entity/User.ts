@@ -2,6 +2,7 @@ import {Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany,
 import { Login, ILogin } from "./Login";
 import { Permission } from "./Permission";
 import { Gamedata } from "./Gamedata";
+import { GameInfo } from "./GameInfo";
 
 @Entity()
 export class User {
@@ -22,6 +23,9 @@ export class User {
     @JoinColumn()
     login: Login;
 
+    @OneToOne(type => GameInfo)
+    gameinfo: GameInfo;
+
     @ManyToOne(type => Permission, perm => perm.users)
     @JoinColumn()
     permission: Permission;
@@ -37,5 +41,7 @@ export class IUser {
     loginName: string;
     avatarId: number;
     login: ILogin;
+    gameinfo: GameInfo;
+    gamedata: Gamedata[];
     active: boolean;
 }
