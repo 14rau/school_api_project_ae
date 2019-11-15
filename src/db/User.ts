@@ -105,8 +105,8 @@ export class UserApi extends Database implements BaseApi<IUser> {
     }
 
     @Perm(20)
-    public async getById(ctx: IApiContext, userId: number) {
-        let res = await getConnection().manager.getRepository(User).findOne({id: userId}, {relations: ["permission", "gameinfo"]});
+    public async getById(ctx: IApiContext, data: {userId: number}) {
+        let res = await getConnection().manager.getRepository(User).findOne({where: {id: data.userId}, relations: ["permission", "gameinfo"]});
         return {...res}
     }
 

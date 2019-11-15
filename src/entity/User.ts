@@ -24,6 +24,7 @@ export class User {
     login: Login;
 
     @OneToOne(type => GameInfo)
+    @JoinColumn()
     gameinfo: GameInfo;
 
     @ManyToOne(type => Permission, perm => perm.users)
@@ -31,6 +32,7 @@ export class User {
     permission: Permission;
 
     @OneToMany(type => Gamedata, gamedata => gamedata.user, {cascade: true,})
+    @JoinColumn()
     gamedata: Gamedata[];
 
 }

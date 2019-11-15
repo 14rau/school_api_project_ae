@@ -16,6 +16,8 @@ export class GameInfo {
 
     @Column({default: 0})
     timeSpend: number;
+
+
 }
 
 

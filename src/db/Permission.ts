@@ -20,13 +20,13 @@ export class PermissionApi extends Database implements BaseApi<IUser> {
         throw new Error("Method not implemented.");
     }
 
-    public async get(ctx: IApiContext, userId: number) {
-        const res = await this.connection.manager.getRepository(Permission).findByIds([userId]);
+    public async get(ctx: IApiContext, id: number) {
+        const res = await this.connection.manager.getRepository(Permission).findByIds([id]);
         return res[0];
     }
 
-    public async getPermission(ctx, userId) {
-        const user = await this.connection.manager.getRepository(User).findByIds([userId], {
+    public async getPermission(ctx, id) {
+        const user = await this.connection.manager.getRepository(User).findByIds([id], {
             relations: ["permission"]
         });
         return user[0].permission.id;
