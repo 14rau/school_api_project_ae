@@ -107,7 +107,23 @@ export class UserApi extends Database implements BaseApi<IUser> {
     @Perm(20)
     public async getById(ctx: IApiContext, data: {userId: number}) {
         let res = await getConnection().manager.getRepository(User).findOne({where: {id: data.userId}, relations: ["permission", "gameinfo"]});
-        return {...res}
+        let rank = await getConnection()
+                        .createQueryBuilder()
+                        .select("rank")
+                        .from(Rank, "rank")
+                        .where("rank.points <= :points", {points: res.gameinfo.points})
+                        .addOrderBy("rank.points", "DESC")
+                        .execute();
+        let currentRank = rank[0];
+        let nextRank = await getConnection()
+                        .createQueryBuilder()
+                        .select("rank")
+                        .from(Rank, "rank")
+                        .where("rank.points >= :points", {points: currentRank.rank_points})
+                        .addOrderBy("rank.points", "DESC")
+                        .getOne()
+
+        return {...res, currentRank, nextRank}
     }
 
     @Perm(20)

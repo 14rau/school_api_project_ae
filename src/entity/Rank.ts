@@ -1,11 +1,8 @@
-import {Entity, Column, OneToOne, JoinColumn, PrimaryColumn, OneToMany} from "typeorm";
-import { Login, ILogin } from "./Login";
-import { User } from "./User";
-
+import {Entity, Column, PrimaryGeneratedColumn} from "typeorm";
 @Entity()
 export class Rank {
 
-    @PrimaryColumn()
+    @PrimaryGeneratedColumn()
     id: number;
 
     @Column()
