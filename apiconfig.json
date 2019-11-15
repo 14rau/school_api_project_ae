@@ -1,4 +1,5 @@
 {
     "port": 1234,
-    "debug": false
+    "debug": false,
+    "eventStreamPort": 56829
 }

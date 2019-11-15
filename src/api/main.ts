@@ -10,6 +10,7 @@ interface Req {
     path: string;
     session?: string;
     userId: number;
+    permissionId: number;
     data: {
         [key: string]: any;
     };
@@ -24,11 +25,6 @@ export class Application{
         this.server = new Hapi.Server(config);
     
         this.server.events.on("response", function(request) {
-            if(["/register", "/login"].includes(request.path) && request.method !== "options") {
-                // remove some specific data from register and login in the log, so we won't show anything
-                (request.payload as any).data.hash = "------------";
-            }
-            if(request.method !== "options") (request.payload as any).session = "SESSION";
             console.log(`${request.method}:[${request.path}]:${JSON.stringify(request.payload)}`);
         });
 
@@ -88,6 +84,7 @@ export class Application{
             }
         })
 
+
         this.registerEndpoint({
             method: "POST",
             path: "/register",
@@ -112,11 +109,10 @@ export class Application{
             path: "/rpc",
             handler: async (request: any, h) => {
                 let payload: Req = request.payload;
-                console.time(payload.session)
                 if(_.get(burgerKrigApi.api, payload.path)) {
                     let user = await burgerKrigApi.api.user.validate({user: {id: payload.userId}, session: payload.session})
                     let temp = await _.get(burgerKrigApi.api, payload.path)({session: payload.session, user}, payload.data);
-                    if(temp.login) {
+                    if(temp && temp.login) {
                         delete temp.login;
                     }
                     if(user.error) {
@@ -124,15 +120,14 @@ export class Application{
                             data: temp
                         }
                     }
-                    let newSession = await burgerKrigApi.api.login.updateSession(null, {
-                        id: payload.userId,
-                        session: payload.session,
-                    });
-                    console.timeEnd(payload.session);
+                    // let newSession = await burgerKrigApi.api.login.updateSession(null, {
+                    //     id: payload.userId,
+                    //     session: payload.session,
+                    // });
                     return {
-                        permission: newSession.permissionId,
-                        userId: newSession.userId,
-                        session: newSession.session,
+                        permission: payload.permissionId,
+                        userId: payload.userId,
+                        session: payload.session,
                         data: temp,
                     }
                 } else {
@@ -149,6 +144,6 @@ export class Application{
 
     public start() {
         this.server.start();
-        console.log("Ok");
+        console.log("API RUNNING");
     }
 }

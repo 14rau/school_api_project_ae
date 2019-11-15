@@ -3,9 +3,9 @@ import { BurgerKrigApi } from "./api/api";
 import { createConnection, getConnection } from "typeorm";
 import { Application } from "./api/main";
 import { Rank } from "./entity/Rank";
+import { SocketServer } from "./api/socket";
 
-(async () => {
-    const connection = await createConnection();
+    createConnection();
 
     if(require("../apiconfig").debug) {
         let repo = getConnection().manager.getRepository(Rank);
@@ -53,7 +53,7 @@ import { Rank } from "./entity/Rank";
     
     const burgerkrigApi = new BurgerKrigApi();
     
-    await burgerkrigApi.init();
+    burgerkrigApi.init();
     const app = new Application({
         port: require("../apiconfig").port,
         routes: {
@@ -63,7 +63,5 @@ import { Rank } from "./entity/Rank";
         },},
         burgerkrigApi);
         app.start();
-})();
 
-// sideeffects
-
+export const socketServer = new SocketServer();

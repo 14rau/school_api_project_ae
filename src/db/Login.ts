@@ -8,6 +8,7 @@ import { IApiContext } from "../api/api";
 import { Perm } from "../ValidationDecorator";
 import { Permission } from "../entity/Permission";
 import Boom = require("boom");
+// import { streamMessage } from "../api/socket";
 const bcrypt = require('bcrypt');
 
 export class LoginApi extends Database implements BaseApi<ILogin> {

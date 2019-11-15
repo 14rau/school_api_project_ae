@@ -8,12 +8,20 @@ import { getConnection } from "typeorm";
 import { Permission } from "../entity/Permission";
 import { Rank } from "../entity/Rank";
 import { GameInfo } from "../entity/GameInfo";
+import { socketServer } from "..";
+// import { streamMessage } from "../api/socket";
 const bcrypt = require('bcrypt');
 
 export class UserApi extends Database implements BaseApi<IUser> {
 
     public addNew(ctx: IApiContext, data: Partial<IUser>) {
         throw new Error("Method not implemented.");
+    }
+
+    @Perm(10)
+    public async chat(ctx: IApiContext, data: {message: string}) {
+        socketServer.streamMessage(data.message, ctx.user.loginName, ctx.user.permission.id);
+        return;
     }
 
     @Perm(0)
@@ -107,9 +115,9 @@ export class UserApi extends Database implements BaseApi<IUser> {
     @Perm(20)
     public async setAvatar(ctx: IApiContext, data:{avatarId: number}) {
         let repo = getConnection().manager.getRepository(User);
-        let user = await repo.findOne({id: ctx.user.id});
+        let user = await repo.findOne({id: ctx.user.id}, {relations: ["permission", "gameinfo"]});
         user.avatarId = data.avatarId;
-        repo.save(user);
+        return repo.save(user);
     }
 
     @Perm(20)

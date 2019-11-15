@@ -5,6 +5,7 @@ import { Perm } from "../ValidationDecorator";
 import { Gamedata, IGamedata } from "../entity/Gamedata";
 import { Database } from "./database";
 import { getConnection } from "typeorm";
+import { socketServer } from "..";
 
 export class GamedataApi extends Database implements BaseApi<IUser> {
 
@@ -32,6 +33,7 @@ export class GamedataApi extends Database implements BaseApi<IUser> {
         user.gameinfo.points += gamedata.points;
         user.gameinfo.timeSpend = new Date(gameEnd).getTime() - new Date(gameStart).getTime() 
         gamedata.user = user;
+        socketServer.streamMessage(`${user.loginName} just finished an game! Score was at ${user.gameinfo.points} and he shot ${user.gameinfo.shots} GURKEN!`);
         getConnection().manager.save([gamedata, user.gameinfo]);
     }
 

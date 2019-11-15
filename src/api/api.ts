@@ -3,7 +3,6 @@ import { UserApi } from "../db/User";
 import { IUser } from "../entity/User";
 import { PermissionApi } from "../db/Permission";
 import { GamedataApi } from "../db/Gamedata";
-import { Connection } from "typeorm";
 
 export interface IApiContext{
     user: IUser;
@@ -40,6 +39,7 @@ export class BurgerKrigApi {
                 register: this.userApi.register,
                 getHighscoreList: this.userApi.getHighscoreList,
                 setAvatar: this.userApi.setAvatar,
+                chat: this.userApi.chat
             },
             permission: {
                 getPermission: this.permissionApi.getPermission
@@ -49,7 +49,8 @@ export class BurgerKrigApi {
                 user: this.gamedataApi.test,
                 admin: this.gamedataApi.adminFunction,
                 root: this.gamedataApi.rootFunction
-            }
+            },
+
         }
     }
 
