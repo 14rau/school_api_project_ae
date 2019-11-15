@@ -17,6 +17,12 @@ export class GameInfo {
     @Column({default: 0})
     timeSpend: number;
 
+    @Column({default: 0})
+    shots: number;
+
+    @Column({ default: () => `now()` })
+    updatedAt: Date;
+
 
 }
 
@@ -26,4 +32,5 @@ export class IGameInfo {
     highscore: number;
     points: number;
     timeSpend: number;
+    shots: number;
 }

@@ -105,6 +105,14 @@ export class UserApi extends Database implements BaseApi<IUser> {
     }
 
     @Perm(20)
+    public async setAvatar(ctx: IApiContext, data:{avatarId: number}) {
+        let repo = getConnection().manager.getRepository(User);
+        let user = await repo.findOne({id: ctx.user.id});
+        user.avatarId = data.avatarId;
+        repo.save(user);
+    }
+
+    @Perm(20)
     public async getById(ctx: IApiContext, data: {userId: number}) {
         let res = await getConnection().manager.getRepository(User).findOne({where: {id: data.userId}, relations: ["permission", "gameinfo"]});
         let rank = await getConnection()

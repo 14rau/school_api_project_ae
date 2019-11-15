@@ -19,6 +19,9 @@ export class User {
     @Column({default: false})
     active: boolean;
 
+    @Column({ default: () => `now()` })
+    createdAt: Date;
+
     @OneToOne(type => Login)
     @JoinColumn()
     login: Login;

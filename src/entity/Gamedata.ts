@@ -25,8 +25,12 @@ export class Gamedata {
     @Column()
     mouseMoved: number;
 
+    @Column({ default: () => `now()` })
+    createdAt: Date;
+
     @ManyToOne(type => User, user => user.gamedata)
     user: User;
+
 
 }
 
