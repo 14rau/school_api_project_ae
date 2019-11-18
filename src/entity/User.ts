@@ -49,4 +49,5 @@ export class IUser {
     gameinfo: GameInfo;
     gamedata: Gamedata[];
     active: boolean;
+    permission: Permission;
 }
