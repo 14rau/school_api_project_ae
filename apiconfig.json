@@ -1,4 +1,4 @@
 {
-    "port": 1234,
-    "debug": false
+  "port": 1234,
+  "debug": false
 }
