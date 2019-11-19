@@ -30,7 +30,11 @@ export class GamedataApi extends Database implements BaseApi<IUser> {
         // use context, since nobody should create data from some other people
         const user = await getConnection().getRepository(User).findOne({where: {id: ctx.user.id}, relations: ["gameinfo"]});
         if(finalScore > user.gameinfo.highscore) user.gameinfo.highscore = finalScore; // update highscore since we have now a better score
-        user.gameinfo.points += gamedata.finalScore;
+        if((user.gameinfo.points += gamedata.finalScore) < 0) {
+            user.gameinfo.points = 0;
+        } else {
+            user.gameinfo.points += gamedata.finalScore;
+        }// in case the added final score will be bellow 0, fix it.
         user.gameinfo.timeSpend += timeWastedInThisGame;
         user.gameinfo.shots += bulletsShot;
         gamedata.user = user;

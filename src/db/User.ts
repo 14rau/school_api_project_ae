@@ -163,7 +163,8 @@ export class UserApi extends Database implements BaseApi<IUser> {
                         .createQueryBuilder()
                         .select("rank")
                         .from(Rank, "rank")
-                        .where("rank.points > :points", {points: currentRank.rank_points})
+                        .where("rank.points > :points", {points: currentRank ? currentRank.rank_points : 0}) // take lowest rank..? might run in a problem, when has minus points for the frontend
+                        // -> Should not be a problem, since we dont want the user gain too mmany minus points
                         .addOrderBy("rank.points", "ASC")
                         .getOne();
 
