@@ -62,8 +62,6 @@ export class UserApi extends Database implements BaseApi<IUser> {
         user.login = login;
         // remove this
         let gameinfo = new GameInfo();
-        gameinfo.highscore = Math.floor(Math.random() * 1001);
-        gameinfo.points = Math.floor(Math.random() * 100001); 
         user.gameinfo = gameinfo;
         // user.highscore = Math.floor(Math.random() * 1001); 
         user.active = true;
@@ -72,7 +70,16 @@ export class UserApi extends Database implements BaseApi<IUser> {
             permission = new Permission();
             permission.id = 20;
             permission.permissionName = "user";
-            await getConnection().manager.save(permission);
+
+            let root = new Permission();
+            root.id = 0;
+            root.permissionName = "root";
+
+            let mod = new Permission();
+            mod.id = 10;
+            mod.permissionName = "moderator";
+
+            await getConnection().manager.save([permission, root, mod]);
         }
 
         let queryResult = await getConnection().createQueryBuilder()
@@ -145,9 +152,9 @@ export class UserApi extends Database implements BaseApi<IUser> {
                         .createQueryBuilder()
                         .select("rank")
                         .from(Rank, "rank")
-                        .where("rank.points >= :points", {points: currentRank.rank_points})
-                        .addOrderBy("rank.points", "DESC")
-                        .getOne()
+                        .where("rank.points > :points", {points: currentRank.rank_points})
+                        .addOrderBy("rank.points", "ASC")
+                        .getOne();
 
         return {...res, currentRank, nextRank}
     }

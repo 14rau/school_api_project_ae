@@ -8,22 +8,19 @@ export class Gamedata {
     id: number;
 
     @Column()
-    actions: string;
+    timeWastedInThisGame: number;
 
     @Column()
-    gameEnd: string;
+    finalScore: number;
 
     @Column()
-    gameStart: string;
+    bulletsShot: number;
 
     @Column()
-    points: number;
+    enemiesKilled: number;
 
     @Column()
-    shots: number;
-
-    @Column()
-    mouseMoved: number;
+    wave: number;
 
     @Column({ default: () => `now()` })
     createdAt: Date;
@@ -36,11 +33,11 @@ export class Gamedata {
 
 export interface IGamedata {
     id: number;
-    actions: string;
-    gameStart: string;
-    gameEnd: string;
-    points: number;
-    shots: number;
-    mouseMoved: number;
+    timeWastedInThisGame: number;
+    finalScore: number;
+    bulletsShot: number;
+    enemiesKilled: number;
+    wave: number;
+    createdAt: Date;
     user: User;
 }

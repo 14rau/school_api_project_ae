@@ -21,19 +21,20 @@ export class GamedataApi extends Database implements BaseApi<IUser> {
 
     public async addNew(ctx: IApiContext, data: Partial<IGamedata>) {
         let gamedata = new Gamedata();
-        let { actions, gameStart, gameEnd, points, mouseMoved } = data;
-        gamedata.actions = actions;
-        gamedata.gameStart = gameStart;
-        gamedata.gameEnd = gameEnd;
-        gamedata.points = points;
-        gamedata.mouseMoved = mouseMoved;
+        let { bulletsShot, enemiesKilled, finalScore, timeWastedInThisGame, wave } = data;
+        gamedata.bulletsShot = bulletsShot;
+        gamedata.enemiesKilled = enemiesKilled;
+        gamedata.finalScore = finalScore;
+        gamedata.timeWastedInThisGame = timeWastedInThisGame;
+        gamedata.wave = wave;
         // use context, since nobody should create data from some other people
         const user = await getConnection().getRepository(User).findOne({where: {id: ctx.user.id}, relations: ["gameinfo"]});
-        if(points > user.gameinfo.highscore) user.gameinfo.highscore = points; // update highscore since we have now a better score
-        user.gameinfo.points += gamedata.points;
-        user.gameinfo.timeSpend = new Date(gameEnd).getTime() - new Date(gameStart).getTime() 
+        if(finalScore > user.gameinfo.highscore) user.gameinfo.highscore = finalScore; // update highscore since we have now a better score
+        user.gameinfo.points += gamedata.finalScore;
+        user.gameinfo.timeSpend += timeWastedInThisGame;
+        user.gameinfo.shots += bulletsShot;
         gamedata.user = user;
-        socketServer.streamMessage(`${user.loginName} just finished an game! Score was at ${user.gameinfo.points} and he shot ${user.gameinfo.shots} GURKEN!`);
+        socketServer.streamMessage(`${user.loginName} just finished an game! Score was at ${gamedata.finalScore} and he shot ${gamedata.bulletsShot} GURKEN!`);
         getConnection().manager.save([gamedata, user.gameinfo]);
     }
 
