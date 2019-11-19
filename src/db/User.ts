@@ -121,6 +121,16 @@ export class UserApi extends Database implements BaseApi<IUser> {
     }
 
     @Perm(20)
+    public search(ctx: IApiContext, data: {query: string}) {
+        return getConnection()
+            .manager
+            .getRepository(User)
+            .createQueryBuilder("user")
+            .where("user.loginName like :name", {name: `%${data.query}%`})
+            .getMany();
+    }
+
+    @Perm(20)
     public async getById(ctx: IApiContext, data: {userId: number}) {
         let res = await getConnection().manager.getRepository(User).findOne({where: {id: data.userId}, relations: ["permission", "gameinfo"]});
         let rank = await getConnection()
