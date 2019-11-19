@@ -13,6 +13,7 @@ import { IUser, User } from "../entity/User";
 import { ILogin, Login } from "../entity/Login";
 import { IApiContext } from "../api/api";
 import { Permission } from "../entity/Permission";
+import { Perm } from "../ValidationDecorator";
 
 export class PermissionApi extends Database implements BaseApi<IUser> {
 
@@ -20,9 +21,9 @@ export class PermissionApi extends Database implements BaseApi<IUser> {
         throw new Error("Method not implemented.");
     }
 
-    public async get(ctx: IApiContext, id: number) {
-        const res = await this.connection.manager.getRepository(Permission).findByIds([id]);
-        return res[0];
+    @Perm(20)
+    public async get(ctx: IApiContext) {
+        return this.connection.manager.getRepository(Permission).find();
     }
 
     public async getPermission(ctx, id) {

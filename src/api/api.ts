@@ -40,10 +40,12 @@ export class BurgerKrigApi {
                 getHighscoreList: this.userApi.getHighscoreList,
                 setAvatar: this.userApi.setAvatar,
                 chat: this.userApi.chat,
-                search: this.userApi.search
+                search: this.userApi.search,
+                getPointrank: this.userApi.getPointrank
             },
             permission: {
-                getPermission: this.permissionApi.getPermission
+                getPermission: this.permissionApi.getPermission,
+                get: this.permissionApi.get
             },
             gamedata: {
                 addNew: this.gamedataApi.addNew,

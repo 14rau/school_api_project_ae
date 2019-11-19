@@ -75,7 +75,7 @@ export class LoginApi extends Database implements BaseApi<ILogin> {
     public async logout(ctx: IApiContext) {
         let user = await getConnection().getRepository(User).findOne({id: ctx.user.id}, {relations: ["login"]});
         getConnection().getRepository(Login).update({session: user.login.session}, {session: null, sessionCreated: null, ttl: null});
-        return;
+        return {};
     }
 
     public async login(data: Partial<IUser & ILogin>, ttl?) {

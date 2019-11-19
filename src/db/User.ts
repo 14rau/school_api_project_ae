@@ -42,6 +42,17 @@ export class UserApi extends Database implements BaseApi<IUser> {
             .execute();
     }
 
+    @Perm(20)
+    public async getPointrank(ctx) {
+        return await getConnection().manager.getRepository(User)
+            .createQueryBuilder("user")
+            .select()
+            .leftJoinAndSelect("user.gameinfo", "gameinfo")
+            .addOrderBy("gameinfo.points", "DESC")
+            .limit(20)
+            .execute();
+    }
+
     public async register(data: Partial<IUser & ILogin>) {
         let us = await getConnection().manager.getRepository(User).findOne({
             where: {
