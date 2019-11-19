@@ -14,6 +14,7 @@ import { ILogin, Login } from "../entity/Login";
 import { IApiContext } from "../api/api";
 import { Permission } from "../entity/Permission";
 import { Perm } from "../ValidationDecorator";
+import { getConnection } from "typeorm";
 
 export class PermissionApi extends Database implements BaseApi<IUser> {
 
@@ -23,11 +24,11 @@ export class PermissionApi extends Database implements BaseApi<IUser> {
 
     @Perm(20)
     public async get(ctx: IApiContext) {
-        return this.connection.manager.getRepository(Permission).find();
+        return getConnection().manager.getRepository(Permission).find();
     }
 
     public async getPermission(ctx, id) {
-        const user = await this.connection.manager.getRepository(User).findByIds([id], {
+        const user = await getConnection().manager.getRepository(User).findByIds([id], {
             relations: ["permission"]
         });
         return user[0].permission.id;
