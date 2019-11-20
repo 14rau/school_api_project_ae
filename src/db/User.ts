@@ -54,6 +54,11 @@ export class UserApi extends Database implements BaseApi<IUser> {
             .where("gamedata.userId = :id", {id: data.id})
             .execute();
 
+        await getConnection().manager.createQueryBuilder()
+        
+
+        
+
 
     }
 
