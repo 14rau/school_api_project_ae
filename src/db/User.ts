@@ -9,6 +9,7 @@ import { Permission } from "../entity/Permission";
 import { Rank } from "../entity/Rank";
 import { GameInfo } from "../entity/GameInfo";
 import { socketServer } from "..";
+import { Gamedata } from "../entity/Gamedata";
 // import { streamMessage } from "../api/socket";
 const bcrypt = require('bcrypt');
 
@@ -18,9 +19,61 @@ export class UserApi extends Database implements BaseApi<IUser> {
         throw new Error("Method not implemented.");
     }
 
-    @Perm(10)
+    @Perm(20)
     public async chat(ctx: IApiContext, data: {message: string}) {
-        socketServer.streamMessage(data.message, ctx.user.loginName, ctx.user.permission.id);
+        try {
+            if(data.message.startsWith("/")) {
+                let args = data.message.split(" ");
+                if(args[0] === "/ban") {
+                    this.setActive(ctx, {id: Number.parseInt(args[1]), active: false})
+                }
+                if(args[0] === "/unban") {
+                    this.setActive(ctx, {id: Number.parseInt(args[1]), active: true})
+                }
+            } else {
+                socketServer.streamMessage(data.message, {username: ctx.user.loginName, perm: ctx.user.permission.id});
+            }
+        } catch (err) {
+            console.log(err);
+            socketServer.streamMessage("Sorry, an error occured", {to: ctx.user.id})
+        }
+        return;
+    }
+
+    @Perm(0)
+    public async deleteData(ctx, data: {id: number}) {
+        const randString = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        const [username, password] = [randString(), randString()];
+        await this.register({loginName: username, hash: password});
+
+        let user = await getConnection().manager.getRepository(User).findOne({where: {loginName: username}});
+
+        await getConnection().manager.createQueryBuilder()
+            .update(Gamedata)
+            .set({user})
+            .where("gamedata.userId = :id", {id: data.id})
+            .execute();
+
+
+    }
+
+    @Perm(0)
+    public async setActive(ctx: IApiContext, data: {id: number, active: boolean}) {
+        await getConnection().manager.getRepository(User).update({id: data.id}, {active: data.active});
+        let user = await this.getById(ctx, {userId: data.id});
+        if(!data.active) {
+            socketServer.streamMessage(`${user.loginName} was banned!`);
+        } else {
+            socketServer.streamMessage(`${user.loginName} not longer banned!`);
+        }
+        return;
+    }
+
+    @Perm(0)
+    public async setPermission(ctx: IApiContext, data: {id: number, permission: number}) {
+        let user = await this.getById(ctx, {userId: data.id});
+        user.permission = await getConnection().manager.getRepository(Permission).findOne({id: data.permission});
+        await getConnection().manager.save(user);
         return;
     }
 
@@ -35,10 +88,10 @@ export class UserApi extends Database implements BaseApi<IUser> {
     public async getHighscoreList(ctx) {
         return await getConnection().manager.getRepository(User)
             .createQueryBuilder("user")
-            .select()
+            .where("user.active = :status", {status: true})
             .leftJoinAndSelect("user.gameinfo", "gameinfo")
             .addOrderBy("gameinfo.highscore", "DESC")
-            .limit(20)
+            .take(20)
             .execute();
     }
 
@@ -46,10 +99,10 @@ export class UserApi extends Database implements BaseApi<IUser> {
     public async getPointrank(ctx) {
         return await getConnection().manager.getRepository(User)
             .createQueryBuilder("user")
-            .select()
+            .where("user.active = :status", {status: true})
             .leftJoinAndSelect("user.gameinfo", "gameinfo")
             .addOrderBy("gameinfo.points", "DESC")
-            .limit(20)
+            .take(20)
             .execute();
     }
 
@@ -180,6 +233,7 @@ export class UserApi extends Database implements BaseApi<IUser> {
 
     // id is userid and session is session string
     public async validate(ctx: IApiContext, data: {id: number, session: string}) {
+        console.log(ctx, "CTX_CALIDATA")
         let [ id, session ] = [ ctx.user.id, ctx.session ];
         let user = await getConnection().manager.getRepository(User).findOne({where: {id: id}, relations: ["login", "permission"]});
         if(!user) return {error: "Invalid session", code: 0}; // tell user the session is not valid instead of the user does not exist

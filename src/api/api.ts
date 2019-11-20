@@ -26,32 +26,36 @@ export class BurgerKrigApi {
 
         this.api = {
             login: {
-                updateSession: this.loginApi.updateSession,
-                logout: this.loginApi.logout,
-                registerApiKey: this.loginApi.registerApiKey,
-                login: this.loginApi.login
+                // has to be like this, since the function wont have access to "this"
+                updateSession: (ctx, data) =>  this.loginApi.updateSession(ctx, data),
+                logout: (ctx, data) => this.loginApi.logout(ctx),
+                registerApiKey: (ctx, data) =>  this.loginApi.registerApiKey(ctx, data),
+                login: (ctx, data) =>  this.loginApi.login(ctx, data)
             },
             user: {
-                validate: this.userApi.validate,
-                getById: this.userApi.getById,
-                get: this.userApi.get,
-                unlock: this.userApi.unlock,
-                register: this.userApi.register,
-                getHighscoreList: this.userApi.getHighscoreList,
-                setAvatar: this.userApi.setAvatar,
-                chat: this.userApi.chat,
-                search: this.userApi.search,
-                getPointrank: this.userApi.getPointrank
+                validate: (ctx, data) =>  this.userApi.validate(ctx, data),
+                getById: (ctx, data) => this.userApi.getById(ctx, data),
+                get: (ctx, data) => this.userApi.get(ctx, data),
+                unlock: (ctx, data) => this.userApi.unlock(ctx, data),
+                register: (ctx, data) => this.userApi.register(data),
+                getHighscoreList: (ctx, data) => this.userApi.getHighscoreList(ctx),
+                setAvatar: (ctx, data) => this.userApi.setAvatar(ctx, data),
+                chat: (ctx, data) => this.userApi.chat(ctx, data),
+                search: (ctx, data) => this.userApi.search(ctx, data),
+                getPointrank: (ctx, data) => this.userApi.getPointrank(ctx),
+                setActive: (ctx, data) => this.userApi.setActive(ctx, data),
+                setPermission: (ctx, data) => this.userApi.setPermission(ctx, data),
+                deleteData: (ctx, data) => this.userApi.deleteData(ctx, data)
             },
             permission: {
-                getPermission: this.permissionApi.getPermission,
-                get: this.permissionApi.get
+                getPermission: (ctx, data) => this.permissionApi.getPermission,
+                get: (ctx, data) => this.permissionApi.get(ctx)
             },
             gamedata: {
-                addNew: this.gamedataApi.addNew,
-                user: this.gamedataApi.test,
-                admin: this.gamedataApi.adminFunction,
-                root: this.gamedataApi.rootFunction
+                addNew: (ctx, data) => this.gamedataApi.addNew(ctx, data),
+                user: (ctx, data) => this.gamedataApi.test(ctx,),
+                admin: (ctx, data) => this.gamedataApi.adminFunction(ctx, data),
+                root: (ctx, data) => this.gamedataApi.rootFunction(ctx, data)
             },
 
         }
