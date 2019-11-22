@@ -88,6 +88,7 @@ export class LoginApi extends Database implements BaseApi<ILogin> {
         if(!user) return {session: "", data:{error: "Username or Password invalid"}};
 
         if(user.isBanned) return {session: "", data:{error: "Account banned!"}}
+        if(!user.active) return {session: "", data:{error: "Account not active yet!"}}
         let res = await bcrypt.compare(data.hash, user.login.hash)
         if(res) {
             let login = await getConnection().getRepository(Login).findOne({

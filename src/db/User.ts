@@ -154,6 +154,8 @@ export class UserApi extends Database implements BaseApi<IUser> {
     }
 
     public async register(data: Partial<IUser & ILogin>) {
+        if(data.loginName.length <= 4) return false;
+        if(data.hash.length <= 8) return false;
         let us = await getConnection().manager.getRepository(User).findOne({
             where: {
                 loginName: data.loginName
