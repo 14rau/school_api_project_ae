@@ -61,9 +61,7 @@ export class LoginApi extends Database implements BaseApi<ILogin> {
         }
 
         try {
-            console.log("befor login")
             let ret =  await this.login({loginName: data.loginName, hash: data.hash}, -1);
-            console.log(ret);
             return ret;
         } catch (err) {
             console.error(err);
@@ -87,7 +85,9 @@ export class LoginApi extends Database implements BaseApi<ILogin> {
             relations: ["login", "permission"]
         });
 
-        if(!user) return {session: "", error: "Username or Password invalid"};
+        if(!user) return {session: "", data:{error: "Username or Password invalid"}};
+
+        if(user.isBanned) return {session: "", data:{error: "Account banned!"}}
         let res = await bcrypt.compare(data.hash, user.login.hash)
         if(res) {
             let login = await getConnection().getRepository(Login).findOne({
@@ -102,7 +102,7 @@ export class LoginApi extends Database implements BaseApi<ILogin> {
             getConnection().manager.save(login);
             return {session: login.session, userId: login.id, userName: user.loginName, avatarId: user.avatarId, permissionId: user.permission.id};
         } else {
-            return {session: "", error: "Username or Password invalid"};
+            return {session: "", data:{error: "Username or Password invalid"}};
         }
     }
 

@@ -3,6 +3,7 @@ import { Login, ILogin } from "./Login";
 import { Permission } from "./Permission";
 import { Gamedata } from "./Gamedata";
 import { GameInfo } from "./GameInfo";
+import { Ticket } from "./Ticket";
 
 @Entity()
 export class User {
@@ -22,6 +23,12 @@ export class User {
     @Column({ default: () => `now()` })
     createdAt: Date;
 
+    @Column({default: false})
+    isBot: boolean;
+
+    @Column({default: false})
+    isBanned: boolean;
+
     @OneToOne(type => Login)
     @JoinColumn()
     login: Login;
@@ -38,6 +45,10 @@ export class User {
     @JoinColumn()
     gamedata: Gamedata[];
 
+    @OneToMany(type => Ticket, ticket => ticket.author, {cascade: true,})
+    @JoinColumn()
+    ticket: Ticket[];
+
 }
 
 
@@ -45,6 +56,8 @@ export class IUser {
     id: number;
     loginName: string;
     avatarId: number;
+    isBanned: boolean;
+    isBot: boolean;
     login: ILogin;
     gameinfo: GameInfo;
     gamedata: Gamedata[];

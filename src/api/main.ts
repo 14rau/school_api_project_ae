@@ -91,6 +91,7 @@ export class Application{
             handler: async (request: any, h) => {
                 try {
                     let payload: Req = request.payload as any;
+                    console.log(payload.data, "register")
                     let re = await burgerKrigApi.api.user.register({...payload.data});
                     return {
                         status: 200,

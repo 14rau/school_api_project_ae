@@ -10,6 +10,7 @@ import { Rank } from "../entity/Rank";
 import { GameInfo } from "../entity/GameInfo";
 import { socketServer } from "..";
 import { Gamedata } from "../entity/Gamedata";
+import { Ticket } from "../entity/Ticket";
 // import { streamMessage } from "../api/socket";
 const bcrypt = require('bcrypt');
 
@@ -25,10 +26,7 @@ export class UserApi extends Database implements BaseApi<IUser> {
             if(data.message.startsWith("/")) {
                 let args = data.message.split(" ");
                 if(args[0] === "/ban") {
-                    this.setActive(ctx, {id: Number.parseInt(args[1]), active: false})
-                }
-                if(args[0] === "/unban") {
-                    this.setActive(ctx, {id: Number.parseInt(args[1]), active: true})
+                    this.toggleBan(ctx, {id: Number.parseInt(args[1])})
                 }
             } else {
                 socketServer.streamMessage(data.message, {username: ctx.user.loginName, perm: ctx.user.permission.id});
@@ -37,6 +35,16 @@ export class UserApi extends Database implements BaseApi<IUser> {
             console.log(err);
             socketServer.streamMessage("Sorry, an error occured", {to: ctx.user.id})
         }
+        return;
+    }
+
+    @Perm(10)
+    public async toggleBan(ctx: IApiContext, data: {id: number}) {
+        await await await getConnection().manager.createQueryBuilder()
+            .update(User)
+            .set({isBanned: () => "!'isBanned'"})
+            .where("gamedata.userId = :id", {id: data.id})
+            .execute();
         return;
     }
 
@@ -55,7 +63,7 @@ export class UserApi extends Database implements BaseApi<IUser> {
             .execute();
 
         await getConnection().manager.createQueryBuilder()
-        
+
 
         
 
@@ -94,9 +102,11 @@ export class UserApi extends Database implements BaseApi<IUser> {
         return await getConnection().manager.getRepository(User)
             .createQueryBuilder("user")
             .where("user.active = :status", {status: true})
+            .where("user.isBanned = :status", {status: false})
+            .where("user.isBot = :status", {status: false})
             .leftJoinAndSelect("user.gameinfo", "gameinfo")
             .addOrderBy("gameinfo.highscore", "DESC")
-            .take(20)
+            .take(10)
             .execute();
     }
 
@@ -105,10 +115,42 @@ export class UserApi extends Database implements BaseApi<IUser> {
         return await getConnection().manager.getRepository(User)
             .createQueryBuilder("user")
             .where("user.active = :status", {status: true})
+            .where("user.isBanned = :status", {status: false})
+            .where("user.isBot = :status", {status: false})
             .leftJoinAndSelect("user.gameinfo", "gameinfo")
             .addOrderBy("gameinfo.points", "DESC")
-            .take(20)
+            .take(10)
             .execute();
+    }
+
+    @Perm(20)
+    public async bestScoreOfDay(ctx) {
+        return await getConnection().manager.getRepository(User)
+            .createQueryBuilder("user")
+            .where("user.active = :status", {status: true})
+            .where("user.isBanned = :status", {status: false})
+            .where("user.isBot = :status", {status: false})
+            .leftJoinAndSelect("user.gameinfo", "gameinfo")
+            .addOrderBy("gameinfo.points", "DESC")
+            .take(10)
+            .execute();
+    }
+
+    @Perm(20)
+    public async addTicket(ctx, data: {author: number, ticket: string}) {
+        let ticket = new Ticket();
+
+        let author = await getConnection().manager.getRepository(User).findOne({where: {id: data.author}});
+        ticket.author = author;
+        ticket.message = data.ticket;
+        await getConnection().manager.save(ticket);
+    }
+
+    @Perm(10)
+    public async getTickets(ctx, data) {
+        return await getConnection().manager.getRepository(Ticket).find({
+            relations: ["author"]
+        });
     }
 
     public async register(data: Partial<IUser & ILogin>) {
@@ -238,18 +280,17 @@ export class UserApi extends Database implements BaseApi<IUser> {
 
     // id is userid and session is session string
     public async validate(ctx: IApiContext, data: {id: number, session: string}) {
-        console.log(ctx, "CTX_CALIDATA")
         let [ id, session ] = [ ctx.user.id, ctx.session ];
         let user = await getConnection().manager.getRepository(User).findOne({where: {id: id}, relations: ["login", "permission"]});
         if(!user) return {error: "Invalid session", code: 0}; // tell user the session is not valid instead of the user does not exist
-        if(!user.active) return {error: "Your account must be marked as active!", code: 1}; // only when user is set to active
+        if(!user.active) return {error: "Your account must be marked as active!", code: 1, data: {message: "Your account is inactive"}}; // only when user is set to active
 
         return session === user.login.session ? user : {error: "Invalid session", code: 0};
         
     }
 
     public put(ctx: IApiContext, data: Partial<IUser>) {
-        
+        throw new Error("Method not implemented.");
     }
 
     public delete(ctx: IApiContext, data: Partial<IUser>) {

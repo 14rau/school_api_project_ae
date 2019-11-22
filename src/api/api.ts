@@ -37,7 +37,7 @@ export class BurgerKrigApi {
                 getById: (ctx, data) => this.userApi.getById(ctx, data),
                 get: (ctx, data) => this.userApi.get(ctx, data),
                 unlock: (ctx, data) => this.userApi.unlock(ctx, data),
-                register: (ctx, data) => this.userApi.register(data),
+                register: (data) => this.userApi.register(data),
                 getHighscoreList: (ctx, data) => this.userApi.getHighscoreList(ctx),
                 setAvatar: (ctx, data) => this.userApi.setAvatar(ctx, data),
                 chat: (ctx, data) => this.userApi.chat(ctx, data),
@@ -45,17 +45,19 @@ export class BurgerKrigApi {
                 getPointrank: (ctx, data) => this.userApi.getPointrank(ctx),
                 setActive: (ctx, data) => this.userApi.setActive(ctx, data),
                 setPermission: (ctx, data) => this.userApi.setPermission(ctx, data),
-                deleteData: (ctx, data) => this.userApi.deleteData(ctx, data)
+                deleteData: (ctx, data) => this.userApi.deleteData(ctx, data),
+                toggleBan: (ctx, data) => this.userApi.toggleBan(ctx, data),
+                addTicket: (ctx, data) => this.userApi.addTicket(ctx, data),
+                getTickets: (ctx, data) => this.userApi.getTickets(ctx, data),
+                
+
             },
             permission: {
-                getPermission: (ctx, data) => this.permissionApi.getPermission,
+                getPermission: (ctx, data) => this.permissionApi.getPermission(ctx, data),
                 get: (ctx, data) => this.permissionApi.get(ctx)
             },
             gamedata: {
                 addNew: (ctx, data) => this.gamedataApi.addNew(ctx, data),
-                user: (ctx, data) => this.gamedataApi.test(ctx,),
-                admin: (ctx, data) => this.gamedataApi.adminFunction(ctx, data),
-                root: (ctx, data) => this.gamedataApi.rootFunction(ctx, data)
             },
 
         }
