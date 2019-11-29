@@ -3,6 +3,7 @@ import { UserApi } from "../db/User";
 import { IUser } from "../entity/User";
 import { PermissionApi } from "../db/Permission";
 import { GamedataApi } from "../db/Gamedata";
+import { BlogApi } from "../db/blog";
 
 export interface IApiContext{
     user: IUser;
@@ -15,6 +16,7 @@ export class BurgerKrigApi {
     private userApi: UserApi;
     private permissionApi: PermissionApi;
     private gamedataApi: GamedataApi;
+    private blogApi: BlogApi;
     public api;
 
     public async init() {
@@ -23,6 +25,7 @@ export class BurgerKrigApi {
         this.userApi = new UserApi();
         this.permissionApi = new PermissionApi();
         this.gamedataApi = new GamedataApi();
+        this.blogApi = new BlogApi();
 
         this.api = {
             login: {
@@ -59,6 +62,10 @@ export class BurgerKrigApi {
             gamedata: {
                 addNew: (ctx, data) => this.gamedataApi.addNew(ctx, data),
             },
+            blog: {
+                addNew: (ctx, data) => this.blogApi.addNew(ctx, data),
+                comment: (ctx, data) => this.blogApi.comment(ctx, data),
+            }
 
         }
     }

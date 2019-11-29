@@ -4,6 +4,8 @@ import { Permission } from "./Permission";
 import { Gamedata } from "./Gamedata";
 import { GameInfo } from "./GameInfo";
 import { Ticket } from "./Ticket";
+import { Blog } from "./Blog";
+import { Comment } from "./Comment";
 
 @Entity()
 export class User {
@@ -48,6 +50,14 @@ export class User {
     @OneToMany(type => Ticket, ticket => ticket.author, {cascade: true,})
     @JoinColumn()
     ticket: Ticket[];
+
+    @OneToMany(type => Blog, blog => blog.author, {cascade: true,})
+    @JoinColumn()
+    blogs: Blog[];
+
+    @OneToMany(type => Blog, blog => blog.author, {cascade: true,})
+    @JoinColumn()
+    comments: Comment[];
 
 }
 
